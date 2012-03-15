@@ -37,6 +37,21 @@ if [ ! -e /bin ]; then
 fi
 
 #------------------------------------------------------------------------------#
+# check resolv.conf existence
+# if it does not exist, nslookup does not work but ping does work
+# more importantly, debootstrap will fail
+if [ ! -e /system/etc/resolv.conf -o -e /system/etc/resolv.conf.adhoc ]; then
+    echo "No '/system/etc/resolv.conf' found, creating an ad-hoc one"
+    mount -o remount,rw rootfs /system
+    echo "nameserver `getprop net.dns1`" > /system/etc/resolv.conf
+    echo 'nameserver 4.2.2.2' >> /system/etc/resolv.conf
+    echo 'nameserver 8.8.8.8' >> /system/etc/resolv.conf
+    echo 'nameserver 198.6.1.1' >> /system/etc/resolv.conf
+    echo "resolv.conf created ad-hoc by LilDebi on `date`" > /system/etc/resolv.conf.adhoc
+    mount -o remount,ro rootfs /system
+fi
+
+#------------------------------------------------------------------------------#
 # create the image file
 echo "create the image file"
 
@@ -81,6 +96,17 @@ export PATH=/usr/sbin:/usr/bin:/sbin:/bin
 
 echo "> chroot $mnt /debootstrap/debootstrap --second-stage"
 chroot $mnt /debootstrap/debootstrap --second-stage
+
+
+#------------------------------------------------------------------------------#
+# check resolv.conf.manual existence, clean up
+if [ ! -e /system/etc/resolv.conf.adhoc ]; then
+    echo "Removing ad-hoc created '/system/etc/resolv.conf'"
+    mount -o remount,rw rootfs /system
+    rm /system/etc/resolv.conf
+    rm /system/etc/resolv.conf.adhoc
+    mount -o remount,ro rootfs /system
+fi
 
 #------------------------------------------------------------------------------#
 # create mountpoints
