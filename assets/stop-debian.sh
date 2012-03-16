@@ -27,11 +27,9 @@ else
         $busybox_path/umount -f $mount
     done
 
-    umount $mnt
-    
     # remove loopback mount association
-    echo "> losetup -d $loopdev"
-    losetup -d $loopdev
+    # equivalent to 'losetup -d $loopdev'
+    umount $mnt
     
     echo ""
     echo "Debian chroot stopped and unmounted."
