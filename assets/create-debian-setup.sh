@@ -55,6 +55,12 @@ fi
 # create the image file
 echo "create the image file"
 
+if [ -z `grep ext2 /proc/filesystems` ]; then
+    echo ""
+    echo "Loading ext2 kernel module:"
+    modprobe ext2 || exit
+fi
+
 echo "> dd if=/dev/zero of=$imagefile seek=$imagesize bs=1M count=1"
 test -e $imagefile || \
     dd if=/dev/zero of=$imagefile seek=$imagesize bs=1M count=1
