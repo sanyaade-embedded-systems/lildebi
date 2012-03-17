@@ -29,9 +29,8 @@ else
 
     umount $mnt
     
-    # remove loopback mount association
-    echo "> losetup -d $loopdev"
-    losetup -d $loopdev
+    # remove loopback mount association (sometimes not needed)
+    losetup -d $loopdev 2> /dev/null
     
     echo ""
     echo "Debian chroot stopped and unmounted."
